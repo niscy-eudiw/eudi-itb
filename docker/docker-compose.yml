@@ -25,6 +25,10 @@ services:
       - CALLBACK_ROOT_URL=http://localhost:8080/itbsrv
     ports:
       - "8080:8080"
+  verification-service:
+    image: ghcr.io/eu-digital-identity-wallet/eudi-itb:main
+    container_name: verification-service
+    restart: unless-stopped
   gitb-ui:
     image: isaitb/gitb-ui
     container_name: itb-ui
