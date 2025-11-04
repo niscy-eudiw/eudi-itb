@@ -16,7 +16,6 @@
 package eu.europa.ec.eudi.gitb;
 
 import com.gitb.tr.ObjectFactory;
-import eu.europa.ec.eudi.verifier.service.CreateQRVerifier;
 import eu.europa.ec.eudi.verifier.service.VerifierValidationService;
 import javax.xml.namespace.QName;
 import org.apache.cxf.Bus;
@@ -40,16 +39,6 @@ public class ServiceConfig {
     endpoint.setServiceName(new QName("http://www.gitb.com/ms/v1/", "MessagingServiceService"));
     endpoint.setEndpointName(new QName("http://www.gitb.com/ms/v1/", "MessagingServicePort"));
     endpoint.publish("/messaging");
-    return endpoint;
-  }
-
-  @Bean
-  public EndpointImpl qrCodeGeneration(
-      Bus cxfBus, CreateQRVerifier messagingServiceImplementation) {
-    EndpointImpl endpoint = new EndpointImpl(cxfBus, messagingServiceImplementation);
-    endpoint.setServiceName(new QName("http://www.gitb.com/ms/v1/", "MessagingServiceService"));
-    endpoint.setEndpointName(new QName("http://www.gitb.com/ms/v1/", "MessagingServicePort"));
-    endpoint.publish("/qrcodegeneration");
     return endpoint;
   }
 

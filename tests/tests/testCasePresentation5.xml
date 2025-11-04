@@ -49,14 +49,14 @@
         </verify>
 
         <assign to="attempt" type="number">1</assign>
-        <assign to="maxAttempts" type="number">10</assign>
+        <assign to="maxAttempts" type="number">$DOMAIN{maxAttempts}</assign>
         <assign to="responseStatus">'404'</assign>
         <assign to="transaction_url">$DOMAIN{endpointAddress} || "/ui/presentations/" || $transactionId</assign>
         <assign to="transaction_logs_url">$transaction_url || "/events"</assign>
         <log>$transaction_url</log>
         <log>$transaction_logs_url</log>
 
-        <while title="HTTP Call Loop to verifier" desc="Make HTTP calls until 10 attempts or status 200">
+        <while title="HTTP Call Loop to verifier" desc="Make HTTP calls until attempts run out or status 200">
             <cond><![CDATA[$attempt <= $maxAttempts and $responseStatus != '200']]></cond>
             <do>
                 <log>"Making HTTP request (attempt " || $attempt || ")..."</log>
@@ -67,7 +67,7 @@
                 <log>"Request status: "|| $httpRequestPool{response}{status}</log>
                 <assign to="responseStatus" source="$httpRequestPool{response}{status}"/>
                 <assign to="attempt" type="number">$attempt + 1</assign>
-                <process handler="DelayProcessor" operation="delay" input="2000"/> <!-- 2-second delay -->
+                <process handler="DelayProcessor" operation="delay" input="$DOMAIN{delayBetweenCalls}"/>
             </do>
         </while>
 
@@ -82,8 +82,11 @@
             <input name="uri">$transaction_logs_url</input>
             <input name="method">"GET"</input>
         </send>
-        <log>$transactionEventLogs{response}{body}</log>
 
+        <verify handler="$DOMAIN{validationService}" desc="Validate logs" >
+            <input name="text">$transactionEventLogs{response}{body}</input>
+        </verify>
+        <log>$transactionEventLogs{response}{body}</log>
     </steps>
     <output>
         <success>

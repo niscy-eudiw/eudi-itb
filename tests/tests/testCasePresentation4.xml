@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testcase id="verify_pid_qr_from_verifier" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
+<testcase id="verify_mdl_age_qr_from_verifier_mso_mdoc" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
     <metadata>
-        <gitb:name>Presentation of PID in sd-jwt format using HAIP via Redirect</gitb:name>
+        <gitb:name>mDL age verification using HAIP via Redirects</gitb:name>
         <gitb:version>1.0</gitb:version>
-        <gitb:description> Presentation of PID in sd-jwt format using HAIP via Redirect</gitb:description>
+        <gitb:description>mDL age verification using HAIP via Redirects</gitb:description>
     </metadata>
     <actors>
         <gitb:actor id="verifier" name="Verifier" />
@@ -19,7 +19,7 @@
         <send id="dataReceived" desc="Send valid presentation request" handler="HttpMessagingV2" from="simulatedInitTransaction" to="verifier">
             <input name="uri">$DOMAIN{endpointAddress} || "/ui/presentations"</input>
             <input name="method">"POST"</input>
-            <input name="body">'{"type":"vp_token","dcql_query":{"credentials":[{"id":"query_0","format":"dc+sd-jwt","meta":{"vct_values":["urn:eudi:pid:1"]}}]},"nonce":"'|| $nonce || '","request_uri_method":"get"}'</input>
+            <input name="body">'{"dcql_query":{"credentials":[{"id":"query_0","format":"mso_mdoc","meta":{"doctype_value":"org.iso.18013.5.1.mDL"},"claims":[{"path":["org.iso.18013.5.1","age_over_18"],"intent_to_retain":false}]}]},"nonce":"'|| $nonce ||'","request_uri_method":"get"}'</input>
             <input name="headers">$httpHeaders</input>
         </send>
         <verify handler="ExpressionValidator" desc="Validate correct http status" stopOnError="true">
@@ -49,14 +49,14 @@
         </verify>
 
         <assign to="attempt" type="number">1</assign>
-        <assign to="maxAttempts" type="number">10</assign>
+        <assign to="maxAttempts" type="number">$DOMAIN{maxAttempts}</assign>
         <assign to="responseStatus">'404'</assign>
         <assign to="transaction_url">$DOMAIN{endpointAddress} || "/ui/presentations/" || $transactionId</assign>
         <assign to="transaction_logs_url">$transaction_url || "/events"</assign>
         <log>$transaction_url</log>
         <log>$transaction_logs_url</log>
 
-        <while title="HTTP Call Loop to verifier" desc="Make HTTP calls until 10 attempts or status 200">
+        <while title="HTTP Call Loop to verifier" desc="Make HTTP calls until attempts run out or status 200">
             <cond><![CDATA[$attempt <= $maxAttempts and $responseStatus != '200']]></cond>
             <do>
                 <log>"Making HTTP request (attempt " || $attempt || ")..."</log>
@@ -67,7 +67,7 @@
                 <log>"Request status: "|| $httpRequestPool{response}{status}</log>
                 <assign to="responseStatus" source="$httpRequestPool{response}{status}"/>
                 <assign to="attempt" type="number">$attempt + 1</assign>
-                <process handler="DelayProcessor" operation="delay" input="2000"/> <!-- 2-second delay -->
+                <process handler="DelayProcessor" operation="delay" input="$DOMAIN{delayBetweenCalls}"/>
             </do>
         </while>
 
@@ -82,6 +82,10 @@
             <input name="uri">$transaction_logs_url</input>
             <input name="method">"GET"</input>
         </send>
+
+        <verify handler="$DOMAIN{validationService}" desc="Validate logs" >
+            <input name="text">$transactionEventLogs{response}{body}</input>
+        </verify>
         <log>$transactionEventLogs{response}{body}</log>
     </steps>
     <output>

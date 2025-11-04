@@ -35,7 +35,5 @@
     <testcase id="verify_mdl_age_qr_from_verifier_mso_mdoc"/>
     <testcase id="verify_mdl_and_pid_from_verifier_mso_mdoc"/>
     <testcase id="verify_pid_sdjwt_remote_presentation_status_list"/>
-
-    <!-- After migrating the testcases to custom validator remove this  -->
-    <testcase id="verify_pid_qr_from_custom_validator"/>
+    <testcase id="verify_pid_mdoc_no_trusted_iaca_cert"/>
 </testsuite>

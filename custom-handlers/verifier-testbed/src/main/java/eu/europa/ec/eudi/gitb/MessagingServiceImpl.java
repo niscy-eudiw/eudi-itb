@@ -15,22 +15,14 @@
  */
 package eu.europa.ec.eudi.gitb;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gitb.core.AnyContent;
 import com.gitb.core.ValueEmbeddingEnumeration;
 import com.gitb.ms.*;
 import com.gitb.ms.Void;
 import com.gitb.tr.TAR;
 import com.gitb.tr.TestResultType;
-import com.google.zxing.WriterException;
-import eu.europa.ec.eudi.qr.service.QRCodeGenerator;
-import eu.europa.ec.eudi.verifier.dto.AuthorizationData;
-import eu.europa.ec.eudi.verifier.service.GenerateAuthorizationRequestUri;
 import jakarta.annotation.Resource;
 import jakarta.xml.ws.WebServiceContext;
-import java.io.IOException;
-import java.net.URI;
-import java.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,55 +126,18 @@ public class MessagingServiceImpl implements MessagingService {
   @Override
   public SendResponse send(SendRequest parameters) {
     LOG.info("Received 'send' command from test bed for session [{}]", parameters.getSessionId());
-    String data = utils.getRequiredString(parameters.getInput(), "data");
-    AuthorizationData parsed;
-    try {
-      parsed = new ObjectMapper().readValue(data, AuthorizationData.class);
-      LOG.info("Parsed data: {}", parsed);
-    } catch (IOException e) {
-      throw new RuntimeException("Invalid JSON in 'data' input", e);
-    }
+    TAR report = utils.createReport(TestResultType.SUCCESS);
+    AnyContent responseData = new AnyContent();
+    responseData.setName("response");
+    responseData
+        .getItem()
+        .add(utils.createAnyContentSimple("payload", "simple", ValueEmbeddingEnumeration.BASE_64));
+    report.getContext().getItem().add(responseData);
 
-    GenerateAuthorizationRequestUri.JwtSecuredAuthorizationRequestTO req =
-        new GenerateAuthorizationRequestUri.JwtSecuredAuthorizationRequestTO();
-    req.clientId = parsed.clientId;
-    req.requestUri = parsed.requestUri;
-    GenerateAuthorizationRequestUri.RequestUriMethodTO method =
-        GenerateAuthorizationRequestUri.RequestUriMethodTO.Get;
-
-    if (parsed.requestUriMethod != null) {
-      if (parsed.requestUriMethod.equalsIgnoreCase("post")) {
-        method = GenerateAuthorizationRequestUri.RequestUriMethodTO.Post;
-      } else if (parsed.requestUriMethod.equalsIgnoreCase("get")) {
-        method = GenerateAuthorizationRequestUri.RequestUriMethodTO.Get;
-      }
-    }
-    req.requestUriMethod = method;
-
-    URI uri = GenerateAuthorizationRequestUri.createAuthorizationRequestUri("eudi-openid4vp", req);
-    System.out.println(uri);
-    try {
-      byte[] qrCode = QRCodeGenerator.generate(uri.toString(), 400, 400);
-
-      String base64Img = Base64.getEncoder().encodeToString(qrCode);
-
-      TAR report = utils.createReport(TestResultType.SUCCESS);
-      AnyContent responseData = new AnyContent();
-      responseData.setName("response");
-      responseData
-          .getItem()
-          .add(
-              utils.createAnyContentSimple(
-                  "payload", base64Img, ValueEmbeddingEnumeration.BASE_64));
-      report.getContext().getItem().add(responseData);
-
-      // Return report.
-      SendResponse response = new SendResponse();
-      response.setReport(report);
-      return response;
-    } catch (WriterException | IOException e) {
-      throw new RuntimeException(e);
-    }
+    // Return report.
+    SendResponse response = new SendResponse();
+    response.setReport(report);
+    return response;
   }
 
   /**

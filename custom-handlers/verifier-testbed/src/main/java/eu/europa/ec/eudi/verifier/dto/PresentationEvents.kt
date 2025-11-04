@@ -89,7 +89,7 @@ data class WalletResponsePosted(
 
 data class WalletFailedToPostResponse(
     override val timestamp: String,
-    val cause: JsonNode,
+    val cause: String,
     override val event: String,
     override val actor: String,
 ) : PresentationEvent
