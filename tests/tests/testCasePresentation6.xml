@@ -32,7 +32,9 @@
         <etxn txnId="t1"/>
 
         <interact inputTitle="Scan the QR Code" desc="Scan the QR Code with your wallet." with="wallet">
+            <instruct desc="Click on the magnifying glass to display the QR code"/>
             <instruct desc="QR code to scan" mimeType="image/png">$dataReceived{response}{body}</instruct>
+            <instruct desc="After you present the credential on your wallet, click on the Close button to continue"/>
         </interact>
 
         <process output="transactionId" handler="CollectionUtils" operation="find">
@@ -78,11 +80,10 @@
             <input name="failureMessage">'Flow failed!'</input>
         </verify>
 
-        <interact inputTitle="Scan the QR Code" desc="Scan the QR Code with your wallet." with="wallet">
-            <instruct desc="Click on the magnifying glass to display the QR code"/>
-            <instruct desc="QR code to scan" mimeType="image/png">$dataReceived{response}{body}</instruct>
-            <instruct desc="After you present the credential on your wallet, click on the Close button to continue"/>
-        </interact>
+        <send id="transactionEventLogs" desc="Retrieve transaction event logs" handler="HttpMessagingV2" from="simulatedInitTransaction" to="verifier">
+            <input name="uri">$transaction_logs_url</input>
+            <input name="method">"GET"</input>
+        </send>
 
         <verify handler="$DOMAIN{validationService}" desc="Validate logs" >
             <input name="text">$transactionEventLogs{response}{body}</input>
