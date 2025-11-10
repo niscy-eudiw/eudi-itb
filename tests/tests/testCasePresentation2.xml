@@ -14,12 +14,30 @@
         <btxn from="simulatedInitTransaction" to="verifier" txnId="t1" handler="HttpMessagingV2"/>
         <process output="nonce" handler="TokenGenerator" operation="uuid"/>
 
+        <interact id="authReqUri" desc="Insert authorization request URI">
+            <instruct desc='Optionally insert a custom Authorization request URI (in the format "scheme://path"). If left empty, the following value will be used: '>$DOMAIN{authUri}</instruct>
+            <request name="uri" desc='Custom authorization request URI' required="false"/>
+        </interact>
+
+        <if desc="Check if variable is empty">
+            <cond>string-length($authReqUri{uri}) = 0</cond>
+            <then>
+                <!-- Actions to take if the variable is empty -->
+                <log>'Default Authorization URI'</log>
+                <assign to="authReqUri{uri}">$DOMAIN{authUri}</assign>
+            </then>
+            <else>
+                <!-- Actions to take if the variable is not empty -->
+                <log>'SUT custom Authorization URI set.'</log>
+            </else>
+        </if>
+
         <assign to="httpHeaders{Content-Type}">"application/json"</assign>
         <assign to="httpHeaders{Accept}">"image/png"</assign>
         <send id="dataReceived" desc="Send valid presentation request" handler="HttpMessagingV2" from="simulatedInitTransaction" to="verifier">
-            <input name="uri">$DOMAIN{endpointAddress} || "/ui/presentations"</input>
+            <input name="uri">$DOMAIN{endpointAddress} || "/ui/presentations/v2"</input>
             <input name="method">"POST"</input>
-            <input name="body">'{"type":"vp_token","dcql_query":{"credentials":[{"id":"query_0","format":"mso_mdoc","meta":{"doctype_value":"eu.europa.ec.eudi.pid.1"}}]},"nonce":"'|| $nonce || '","request_uri_method":"get"}'</input>
+            <input name="body">'{"type":"vp_token","dcql_query":{"credentials":[{"id":"query_0","format":"mso_mdoc","meta":{"doctype_value":"eu.europa.ec.eudi.pid.1"}}]},"nonce":"'|| $nonce || '","request_uri_method":"get","authorization_request_uri": "'|| $authReqUri{uri} ||'"}'</input>
             <input name="headers">$httpHeaders</input>
         </send>
         <verify handler="ExpressionValidator" desc="Validate correct http status" stopOnError="true">

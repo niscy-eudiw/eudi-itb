@@ -14,12 +14,30 @@
         <btxn from="simulatedInitTransaction" to="verifier" txnId="t1" handler="HttpMessagingV2"/>
         <process output="nonce" handler="TokenGenerator" operation="uuid"/>
 
+        <interact id="authReqUri" desc="Insert authorization request URI">
+            <instruct desc='Optionally insert a custom Authorization request URI (in the format "scheme://path"). If left empty, the following value will be used: '>$DOMAIN{authUri}</instruct>
+            <request name="uri" desc='Custom authorization request URI' required="false"/>
+        </interact>
+
+        <if desc="Check if variable is empty">
+            <cond>string-length($authReqUri{uri}) = 0</cond>
+            <then>
+                <!-- Actions to take if the variable is empty -->
+                <log>'Default Authorization URI'</log>
+                <assign to="authReqUri{uri}">$DOMAIN{authUri}</assign>
+            </then>
+            <else>
+                <!-- Actions to take if the variable is not empty -->
+                <log>'SUT custom Authorization URI set.'</log>
+            </else>
+        </if>
+
         <assign to="httpHeaders{Content-Type}">"application/json"</assign>
         <assign to="httpHeaders{Accept}">"image/png"</assign>
         <send id="dataReceived" desc="Send valid presentation request" handler="HttpMessagingV2" from="simulatedInitTransaction" to="verifier">
-            <input name="uri">$DOMAIN{endpointAddress} || "/ui/presentations"</input>
+            <input name="uri">$DOMAIN{endpointAddress} || "/ui/presentations/v2"</input>
             <input name="method">"POST"</input>
-            <input name="body">'{"type":"vp_token","dcql_query":{"credentials":[{"id":"query_0","format":"dc+sd-jwt","meta":{"vct_values":["urn:eudi:pid:1"]}}]},"issuer_chain":"-----BEGIN CERTIFICATE-----\nMIICmzCCAkGgAwIBAgIUcIRBtysIv2tUHZUUW2tCVyE1HD4wCgYIKoZIzj0EAwIw\ngYcxCzAJBgNVBAYTAlVTMRgwFgYDVQQIDA9TdGF0ZSBvZiBVdG9waWExEjAQBgNV\nBAcMCVNhbiBSYW1vbjEaMBgGA1UECgwRT3BlbklEIEZvdW5kYXRpb24xCzAJBgNV\nBAsMAklUMSEwHwYDVQQDDBhjZXJ0aWZpY2F0aW9uLm9wZW5pZC5uZXQwHhcNMjUx\nMDA4MDkxMzQ1WhcNMjYxMDA4MDkxMzQ1WjCBhzELMAkGA1UEBhMCVVMxGDAWBgNV\nBAgMD1N0YXRlIG9mIFV0b3BpYTESMBAGA1UEBwwJU2FuIFJhbW9uMRowGAYDVQQK\nDBFPcGVuSUQgRm91bmRhdGlvbjELMAkGA1UECwwCSVQxITAfBgNVBAMMGGNlcnRp\nZmljYXRpb24ub3BlbmlkLm5ldDBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJl+\nF1Jhzt/OVFihkGmGVZBbmJxdzNEIEzTk4xEQbbOMYySrhwwVm/dMBzpMq7vVARnR\nbjN7jDbNBXgJ2+ENa++jgYgwgYUwZAYDVR0RBF0wW4IYY2VydGlmaWNhdGlvbi5v\ncGVuaWQubmV0gh1kZW1vLmNlcnRpZmljYXRpb24ub3BlbmlkLm5ldIIgc3RhZ2lu\nZy5jZXJ0aWZpY2F0aW9uLm9wZW5pZC5uZXQwHQYDVR0OBBYEFK2eT4QnmGigLBTV\nOhRy1Y4HNNSnMAoGCCqGSM49BAMCA0gAMEUCIFd1YInyvs0sHfhlmQ59wtpDlZvv\nNdayLDFFSJ0ktvQXAiEAiMUwtWQF/U0scO2hnJTMdB5H3dj6gxmtZ7DqGQerMDE=\n-----END CERTIFICATE-----", "nonce":"'|| $nonce || '","request_uri_method":"get"}'</input>
+            <input name="body">'{"type":"vp_token","dcql_query":{"credentials":[{"id":"query_0","format":"dc+sd-jwt","meta":{"vct_values":["urn:eudi:pid:1"]}}]},"issuer_chain":"-----BEGIN CERTIFICATE-----\nMIICmzCCAkGgAwIBAgIUcIRBtysIv2tUHZUUW2tCVyE1HD4wCgYIKoZIzj0EAwIw\ngYcxCzAJBgNVBAYTAlVTMRgwFgYDVQQIDA9TdGF0ZSBvZiBVdG9waWExEjAQBgNV\nBAcMCVNhbiBSYW1vbjEaMBgGA1UECgwRT3BlbklEIEZvdW5kYXRpb24xCzAJBgNV\nBAsMAklUMSEwHwYDVQQDDBhjZXJ0aWZpY2F0aW9uLm9wZW5pZC5uZXQwHhcNMjUx\nMDA4MDkxMzQ1WhcNMjYxMDA4MDkxMzQ1WjCBhzELMAkGA1UEBhMCVVMxGDAWBgNV\nBAgMD1N0YXRlIG9mIFV0b3BpYTESMBAGA1UEBwwJU2FuIFJhbW9uMRowGAYDVQQK\nDBFPcGVuSUQgRm91bmRhdGlvbjELMAkGA1UECwwCSVQxITAfBgNVBAMMGGNlcnRp\nZmljYXRpb24ub3BlbmlkLm5ldDBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJl+\nF1Jhzt/OVFihkGmGVZBbmJxdzNEIEzTk4xEQbbOMYySrhwwVm/dMBzpMq7vVARnR\nbjN7jDbNBXgJ2+ENa++jgYgwgYUwZAYDVR0RBF0wW4IYY2VydGlmaWNhdGlvbi5v\ncGVuaWQubmV0gh1kZW1vLmNlcnRpZmljYXRpb24ub3BlbmlkLm5ldIIgc3RhZ2lu\nZy5jZXJ0aWZpY2F0aW9uLm9wZW5pZC5uZXQwHQYDVR0OBBYEFK2eT4QnmGigLBTV\nOhRy1Y4HNNSnMAoGCCqGSM49BAMCA0gAMEUCIFd1YInyvs0sHfhlmQ59wtpDlZvv\nNdayLDFFSJ0ktvQXAiEAiMUwtWQF/U0scO2hnJTMdB5H3dj6gxmtZ7DqGQerMDE=\n-----END CERTIFICATE-----", "nonce":"'|| $nonce || '","request_uri_method":"get","authorization_request_uri": "'|| $authReqUri{uri} ||'"}'</input>
             <input name="headers">$httpHeaders</input>
         </send>
         <verify handler="ExpressionValidator" desc="Validate correct http status" stopOnError="true">
