@@ -10,17 +10,17 @@
         <gitb:actor id="issuer" name="Issuer" />
         <gitb:actor id="wallet" name="Wallet" role="SUT"/>
     </actors>
-    <steps stopOnError="true">
+    <steps>
         <log>"mDL Issuance in mDoc Format at: " || $DOMAIN{issuerAddress} || "/credential_offer2?credential_configuration_id=eu.europa.ec.eudi.mdl_mdoc"</log>
         
         <!--Making an HTTP Request to the Issuer's Credential Offer Endpoint -->
         <assign to="httpHeaders{Content-Type}">"application/json"</assign>
-        <send id="credentialOffer" desc="Send mDL issuance (mDoc) request to Credential Offer" handler="HttpMessagingV2" from="simulatedCredentialOffer" to="issuer">
+        <send stopOnError="true" id="credentialOffer" desc="Send mDL issuance (mDoc) request to Credential Offer" handler="HttpMessagingV2" from="simulatedCredentialOffer" to="issuer">
             <input name="uri">$DOMAIN{issuerAddress} || "/credential_offer2?credential_configuration_id=eu.europa.ec.eudi.mdl_mdoc"</input>
             <input name="method">"GET"</input>
             <input name="headers">$httpHeaders</input>
         </send>
-        <verify id="checkStatusCode" handler="StringValidator" desc="Validate Credential Offer Response HTTP status">
+        <verify stopOnError="true" id="checkStatusCode" handler="StringValidator" desc="Validate Credential Offer Response HTTP status">
             <input name="actual">$credentialOffer{response}{status}</input>
             <input name="expected">"200"</input>
             <input name="failureMessage">"The received HTTP status was not 200."</input>
@@ -30,13 +30,13 @@
 
         <!--Retrieve Data from Credential Offer Response-->
         <assign to="credentialOfferResponse" source="$credentialOffer{response}{body}" type="string"/> <!--Covert binary to string-->
-        <process handler="JsonPathProcessor" operation="process" output="sessionID"> <!--Extract session_id from response-->
+        <process stopOnError="true" handler="JsonPathProcessor" operation="process" output="sessionID"> <!--Extract session_id from response-->
            <input name="content">$credentialOfferResponse</input>
            <input name="expression">"$.session_id"</input>
            <input name="outputType">"default"</input>
         </process>
         <log> "sessionID from Credential Offer response:" || $sessionID</log>
-        <process handler="JsonPathProcessor" operation="process" output="base64Img"> <!--Extract base64_img from response-->
+        <process stopOnError="true" handler="JsonPathProcessor" operation="process" output="base64Img"> <!--Extract base64_img from response-->
            <input name="content">$credentialOfferResponse</input>
            <input name="expression">"$.base64_img"</input>
            <input name="outputType">"default"</input>
@@ -44,10 +44,10 @@
         <log>"Credential Offer Response base64 image:" || $base64Img</log>
 
         <!--Display Credential Offer QrCode-->
-        <process handler="Base64Processor" operation="decode"  output="img">
+        <process stopOnError="true" handler="Base64Processor" operation="decode"  output="img">
             <input name="input">$base64Img</input>
         </process>
-        <interact inputTitle="Scan the QR Code" desc="Scan the QR Code with your wallet." with="wallet">
+        <interact stopOnError="true" inputTitle="Scan the QR Code" desc="Scan the QR Code with your wallet." with="wallet">
             <instruct desc="Click on the magnifying glass to display the QR code"/>
             <instruct desc="QR code to scan" contentType="BASE64" mimeType="image/png">$img</instruct>
             <instruct desc="After issuing the mDL in your wallet, click on the Close button to continue"/>
@@ -60,7 +60,7 @@
         <assign to="successful">false</assign>
         <assign to="success">"false"</assign>
         <assign to="logsResponse">'none'</assign>
-        <while title="HTTP Call Loop to the Issuer" desc="Make HTTP calls until 20 attempts or until successful Credential Offer is detected">
+        <while stopOnError="true" title="HTTP Call Loop to the Issuer" desc="Make HTTP calls until 20 attempts or until successful Credential Offer is detected">
             <cond><![CDATA[$attempt <= $maxAttempts and $success != "true"]]></cond>
             <do>
                 <log>"Making HTTP request (attempt " || $attempt || ")..."</log>
@@ -82,7 +82,7 @@
             </do>
         </while>
         
-        <verify id="checkLogsStatusCode" handler="StringValidator" desc="Validate the HTTP status of the logs retrieval request">
+        <verify stopOnError="true" id="checkLogsStatusCode" handler="StringValidator" desc="Validate the HTTP status of the logs retrieval request">
                 <input name="actual">$sessionIdLogs{response}{status}</input>
                 <input name="expected">"200"</input>
                 <input name="failureMessage">"The received HTTP status was not 200."</input>
@@ -91,27 +91,28 @@
         <log>"Logs Retrieval body:" || $sessionIdLogs{response}{body}</log>
 
         <!--Retrieve Logs Response-->
-        <process handler="JsonPathProcessor" operation="process" output="count"> <!--Extract count from response-->
+        <process stopOnError="true" handler="JsonPathProcessor" operation="process" output="count"> <!--Extract count from response-->
            <input name="content">$logsResponse</input>
            <input name="expression">"$.count"</input>
            <input name="outputType">"default"</input>
         </process>
         <log>"Number of logs: " || $count</log>
+        
+        <process stopOnError="true" handler="JsonPointerProcessor" operation="process" output="logs"> <!--Extract logs from response-->
+            <input name="content">$logsResponse</input>
+            <input name="pointer">"/logs"</input>
+        </process>
+        <log>$logs</log>
 
-        <verify id="checkSuccessful" handler="StringValidator" desc="Validate the 'successful' value in the logs response">
+        <verify stopOnError="false" id="checkSuccessful" handler="StringValidator" desc="Validate the 'successful' value in the logs response">
             <input name="actual">$successful</input>
             <input name="expected">"true"</input>
             <input name="failureMessage">"The Credential Offer was not successful."</input>
         </verify>
         <log>"Credential Offer was successful? " || $successful</log>
 
-        <process handler="JsonPointerProcessor" operation="process" output="logs"> <!--Extract logs from response-->
-            <input name="content">$logsResponse</input>
-            <input name="pointer">"/logs"</input>
-        </process>
-        <log>$logs</log>
-        <interact inputTitle="Issuer's Credential Offer Logs" desc="Inspect Issuer's Credential Offer logs">
-            <instruct desc="Download logs from Credential Offer" mimeType="application/json">$logs</instruct>
+        <interact stopOnError="true" inputTitle="Issuer's Credential Offer Logs" desc="Inspect Issuer's Credential Offer logs">
+            <instruct desc="Download Credential Offer Logs" mimeType="application/json">$logs</instruct>
         </interact>
     </steps>
     <output>
