@@ -17,6 +17,7 @@ package eu.europa.ec.eudi.verifier.service
 
 import com.gitb.core.AnyContent
 import com.gitb.core.ValueEmbeddingEnumeration
+import com.gitb.tr.TAR
 import com.gitb.tr.TestResultType
 import com.gitb.tr.ValidationCounters
 import com.gitb.vs.GetModuleDefinitionResponse
@@ -28,12 +29,15 @@ import eu.europa.ec.eudi.gitb.Utils
 import eu.europa.ec.eudi.verifier.dto.AttestationStatusCheckFailed
 import eu.europa.ec.eudi.verifier.dto.FailedToRetrievePresentationDefinition
 import eu.europa.ec.eudi.verifier.dto.FailedToRetrieveRequestObject
+import eu.europa.ec.eudi.verifier.dto.PresentationEvent
 import eu.europa.ec.eudi.verifier.dto.PresentationEventsTO
 import eu.europa.ec.eudi.verifier.dto.PresentationExpired
+import eu.europa.ec.eudi.verifier.dto.ValidationWarnings
 import eu.europa.ec.eudi.verifier.dto.VerifierFailedToGetWalletResponse
 import eu.europa.ec.eudi.verifier.dto.VerifierGotWalletResponse
 import eu.europa.ec.eudi.verifier.dto.WalletFailedToPostResponse
 import eu.europa.ec.eudi.verifier.dto.WalletResponsePosted
+import eu.europa.ec.eudi.verifier.dto.Warning
 import eu.europa.ec.eudi.verifier.utils.Json
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -64,53 +68,68 @@ class VerifierValidationService(
             }.getOrNull()
 
         val providedLogs = json.reader.readValue(providedText, PresentationEventsTO::class.java)
+        val events = providedLogs.events
 
-        val walletResponseEvent = providedLogs.events.filterIsInstance<WalletResponsePosted>()
-        val verifierWalletResponseEvent = providedLogs.events.filterIsInstance<VerifierGotWalletResponse>()
+        val warningsMap = extractWarnings(events)
+        val nonRecoverableError = checkNonRecoverableErrors(events, expectError, warningsMap)
 
-        val verifierQuery = verifierWalletResponseEvent.firstOrNull()?.walletResponse
-        val walletQuery = walletResponseEvent.firstOrNull()?.walletResponse
+        val report = createReport(providedLogs, nonRecoverableError, warningsMap)
+        log.info("Validation report created: {}", report)
+        return ValidationResponse().apply { this.report = report }
+    }
 
-        val successCheck = providedLogs.events.filterIsInstance<VerifierGotWalletResponse>().isNotEmpty()
-
-        val warnings =
-            providedLogs.events.mapNotNull { event ->
-                when (event) {
-                    is AttestationStatusCheckFailed -> mapOf("event" to event.event, "cause" to event.cause)
-                    is WalletFailedToPostResponse -> mapOf("event" to event.event, "cause" to event.cause)
-                    is FailedToRetrievePresentationDefinition -> mapOf("event" to event.event, "cause" to event.cause)
-                    is FailedToRetrieveRequestObject -> mapOf("event" to event.event, "cause" to event.cause)
-                    is PresentationExpired -> mapOf("event" to "Presentation expired", "cause" to "Presentation expired")
-                    is VerifierFailedToGetWalletResponse -> mapOf("event" to event.event, "cause" to event.cause)
-                    else -> null
-                }
-            }.distinct()
-
-        // Those are the only non-recoverable error that can occur/care about
-        val nonRecoverableErrors =
-            when (expectError) {
-                "attestation_error" ->
-                    if (!warnings.find { it["event"] == "Attestation status check failed" }.isNullOrEmpty()) {
-                        null
-                    } else {
-                        "Attestation step should fail to post response but did anyways or/and other error occurred"
-                    }
-                "certificate_error" -> {
-                    if (!warnings.find { it["event"] == "Wallet failed to post response" }.isNullOrEmpty()) {
-                        null
-                    } else {
-                        "Wallet should fail to post response but did anyways or/and other error occurred"
-                    }
-                }
-                else ->
-                    if ((verifierQuery == walletQuery) && successCheck) {
-                        null
-                    } else {
-                        "Wallet query and verifier query do not match"
-                    }
+    private fun extractWarnings(events: List<PresentationEvent>): Map<String, String?> =
+        events.mapNotNull {
+            when (it) {
+                is AttestationStatusCheckFailed -> it.event to it.cause
+                is WalletFailedToPostResponse -> it.event to it.cause
+                is FailedToRetrievePresentationDefinition -> it.event to it.cause
+                is FailedToRetrieveRequestObject -> it.event to it.cause
+                is PresentationExpired -> it.event to it.actor
+                is VerifierFailedToGetWalletResponse -> it.event to it.cause
+                else -> null
             }
+        }.toMap()
 
-        // Build report with the appropriate result based on errors
+    private fun checkNonRecoverableErrors(
+        events: List<PresentationEvent>,
+        expectError: String?,
+        warningsMap: Map<String, String?>,
+    ): String? =
+        when (expectError) {
+            "attestation_error" ->
+                if (warningsMap["Attestation status check failed"] == null) {
+                    "Attestation step should fail to post response but did anyways or/and other error occurred (ex: Presentation Timeout)"
+                } else {
+                    null
+                }
+            "certificate_error" ->
+                if (warningsMap["Wallet failed to post response"] == null) {
+                    "Wallet should fail to post response but did anyways or/and other error occurred (ex: Presentation Timeout)"
+                } else {
+                    null
+                }
+            else -> {
+                val verifierWalletResponseEvent = events.filterIsInstance<VerifierGotWalletResponse>().firstOrNull()
+                val walletResponseEvent = events.filterIsInstance<WalletResponsePosted>().firstOrNull()
+
+                val verifierQuery = verifierWalletResponseEvent?.walletResponse
+                val walletQuery = walletResponseEvent?.walletResponse
+                val successCheck = verifierWalletResponseEvent != null
+
+                if (verifierQuery == walletQuery && successCheck) {
+                    null
+                } else {
+                    "Wallet query and verifier query do not match"
+                }
+            }
+        }
+
+    private fun createReport(
+        providedLogs: PresentationEventsTO,
+        nonRecoverableErrors: String?,
+        warningsMap: Map<String, String?>,
+    ): TAR {
         val report =
             utils.createReport(
                 if (nonRecoverableErrors != null) {
@@ -120,28 +139,26 @@ class VerifierValidationService(
                 },
             )
 
-        val verifierLogs = providedLogs.toContent("Verifier's Logs")
-
         report.apply {
             counters = ValidationCounters()
-            context.item.add(verifierLogs)
-            log.info("nonRecoverableErrors created: {}", nonRecoverableErrors)
+            context.item.add(providedLogs.toContent("Verifier's Logs"))
+
             if (nonRecoverableErrors != null) {
+                log.info("nonRecoverableErrors created: {}", nonRecoverableErrors)
                 context.item.add(
                     nonRecoverableErrors.toContent("Non-recoverable errors"),
                 )
                 counters.nrOfErrors = 1.toBigInteger()
             }
-            if (warnings.isNotEmpty()) {
-                context.item.add(warnings.map { it["cause"] }.toStrings().toContent("Validation warnings", "text/plain"))
+
+            if (warningsMap.isNotEmpty()) {
+                val warningsTO = ValidationWarnings(warnings = warningsMap.values.distinct().map { Warning(warning = it) })
+                context.item.add(warningsTO.toContent("Validation warnings"))
             }
-            counters.nrOfWarnings = warnings.size.toBigInteger()
+            counters.nrOfWarnings = warningsMap.size.toBigInteger()
         }
-
-        return ValidationResponse().apply { this.report = report }
+        return report
     }
-
-    private fun List<String?>.toStrings(): String = this.joinToString(" " + System.lineSeparator() + " ")
 
     private fun Any.toContent(
         name: String,
