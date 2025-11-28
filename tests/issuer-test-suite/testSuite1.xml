@@ -16,10 +16,10 @@
         </gitb:actor>
         <gitb:actor id="wallet">
             <gitb:name>Wallet</gitb:name>
-            <gitb:desc>The EUDI Wallet that will be tested against the Issuer.</gitb:desc>
+            <gitb:desc>The Wallet that will be tested against the Issuer.</gitb:desc>
         </gitb:actor>
     </actors>
-    <testcase id="testCase1_credentialOffer_pid_mdoc"/>
-    <testcase id="testCase2_credentialOffer_pid_sdjwt"/>
+    <testcase id="testCase1_credentialOffer_pid_sdjwt"/>
+    <testcase id="testCase2_credentialOffer_pid_mdoc"/>
     <testcase id="testCase3_credentialOffer_mDL_mDoc"/>
 </testsuite>

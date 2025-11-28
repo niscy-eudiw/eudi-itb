@@ -1,9 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testcase id="testCase3_credentialOffer_mDL_mDoc" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
     <metadata>
-        <gitb:name>[TC3] Credential Offer - mDL Issuance in mDoc Format</gitb:name>
+        <gitb:name>Issuance of mDL in mdoc format using the Issuer-initiated Authorisation Code Flow (haip-vci:// scheme)</gitb:name>
         <gitb:version>1.0</gitb:version>
-        <gitb:description>Test case for mDL Issuance in mDoc Format via the Credential Offer Endpoint.</gitb:description>
+        <gitb:description>This test case verifies that it is possible to issue a mDL in mdoc format using the Issuer-initiated Authorisation Code Flow (haip-vci:// scheme)</gitb:description>
+        <gitb:specification>
+            <gitb:reference>Issuance_3</gitb:reference>
+        </gitb:specification>
+        <gitb:documentation><![CDATA[
+            <h4>Preconditions</h4>
+            <ol style="list-style-type: lower-alpha;">
+            <li>The user of the issuer has shared the url and login details to the wallet user</li>
+            </ol>
+            <h4>Test steps</h4>
+            <ol>
+            <li>The wallet user navigates to the url of the issuer</li>
+            <li>The wallet user logs in to the issuer website</li>
+            <li>The wallet user clicks on a link/scans a QR code to issue an mDL</li>
+            <li>The wallet is verified</li>
+            </ol>
+            <h4>Expected results</h4>
+            <ol>
+            <li>The website of the issuer opens</li>
+            <li>The user is authorized</li>
+            <li>The mDL is sent to the wallet</li>
+            <li>The mDL is visible in the wallet</li>
+            </ol>
+        ]]></gitb:documentation>
     </metadata>
     <actors>
         <gitb:actor id="simulatedCredentialOffer" name="Simulated Credential Offer" />
@@ -61,7 +84,7 @@
         </process>
         <interact stopOnError="true" inputTitle="Scan the QR Code" desc="Scan the QR Code with your wallet." with="wallet">
             <instruct desc="Click on the magnifying glass to display the QR code"/>
-            <instruct desc="QR code to scan" contentType="BASE64" mimeType="image/png">$img</instruct>
+            <instruct desc="Scan this QR with your wallet" contentType="BASE64" mimeType="image/png">$img</instruct>
             <instruct desc="After issuing the mDL in your wallet, click on the Close button to continue"/>
         </interact>
 
