@@ -3,13 +3,152 @@
     <metadata>
         <gitb:name>Presentation of mDL in mdoc format using OpenID4VP Digital Credentials API flow</gitb:name>
         <gitb:version>1.0</gitb:version>
-        <gitb:description>This test case verifies that it is possible to present a PID in sd-jwt format using DC API</gitb:description>
+        <gitb:description>This test case verifies that it is possible to present an mDL in mdoc format using OpenID4VP via W3C Digital Credentials API </gitb:description>
         <gitb:specification>
-            <gitb:reference>Remote_Presentation_6</gitb:reference>
+            <gitb:reference>PRE-06</gitb:reference>
         </gitb:specification>
         <gitb:documentation><![CDATA[
-           <h2>NEEDS UPDATE!</h2>
-           Chrome only test
+            <table class="MsoTableGrid" style="border-collapse: collapse; border: none; mso-border-alt: solid windowtext .5pt; mso-yfti-tbllook: 1184; mso-padding-alt: 0cm 5.4pt 0cm 5.4pt;" border="1" cellspacing="0" cellpadding="0">
+            <tbody>
+            <tr style="mso-yfti-irow: 0; mso-yfti-firstrow: yes;">
+            <td style="width: 129.65pt; border: solid windowtext 1.0pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="173">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><strong><span style="mso-ansi-language: EN-US;">Test case ID</span></strong></p>
+            </td>
+            <td style="width: 337.85pt; border: solid windowtext 1.0pt; border-left: none; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" colspan="2" valign="top" width="450">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><strong><span style="mso-ansi-language: EN-US;">PRE-06</span></strong></p>
+            </td>
+            </tr>
+            <tr style="mso-yfti-irow: 1;">
+            <td style="width: 129.65pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="173">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><strong><span style="mso-ansi-language: EN-US;">Title</span></strong></p>
+            </td>
+            <td style="width: 337.85pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" colspan="2" valign="top" width="450">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">Presentation of <strong>mDL</strong> in <strong>mdoc</strong> format using OpenID4VP <strong>Digital Credentials API</strong> flow</span></p>
+            </td>
+            </tr>
+            <tr style="mso-yfti-irow: 2;">
+            <td style="width: 129.65pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="173">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><strong><span style="mso-ansi-language: EN-US;">Test session type</span></strong></p>
+            </td>
+            <td style="width: 337.85pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" colspan="2" valign="top" width="450">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">Remote Presentation</span></p>
+            </td>
+            </tr>
+            <tr style="mso-yfti-irow: 3;">
+            <td style="width: 129.65pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="173">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><strong><span style="mso-ansi-language: EN-US;">P2P test case ID</span></strong></p>
+            </td>
+            <td style="width: 337.85pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" colspan="2" valign="top" width="450">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">Remote_Presentation_11</span></p>
+            </td>
+            </tr>
+            <tr style="mso-yfti-irow: 4;">
+            <td style="width: 129.65pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="173">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><strong><span style="mso-ansi-language: EN-US;">Purpose</span></strong></p>
+            </td>
+            <td style="width: 337.85pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" colspan="2" valign="top" width="450">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">This test case verifies that it is possible to present an mDL in mdoc format using OpenID4VP via W3C Digital Credentials API</span></p>
+            </td>
+            </tr>
+            <tr style="mso-yfti-irow: 5; height: 52.15pt;">
+            <td style="width: 129.65pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 52.15pt;" valign="top" width="173">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><strong><span style="mso-ansi-language: EN-US;">Preconditions</span></strong></p>
+            </td>
+            <td style="width: 337.85pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 52.15pt;" colspan="2" valign="top" width="450">
+            <ol style="list-style-type: lower-alpha;">
+            <li>The user has a valid mDL in mdoc format in their wallet</li>
+            <li>The remote reader trusts the IACA certificate used to sign the mDL</li>
+            <li>The wallet trusts the remote reader&rsquo;s access certificate</li>
+            </ol>
+            </td>
+            </tr>
+            <tr style="mso-yfti-irow: 6;">
+            <td style="width: 129.65pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="173">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><strong><span style="mso-ansi-language: EN-US;">Remarks</span></strong></p>
+            </td>
+            <td style="width: 337.85pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" colspan="2" valign="top" width="450">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">N/A</span></p>
+            </td>
+            </tr>
+            <tr style="mso-yfti-irow: 7;">
+            <td style="width: 129.65pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="173">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><strong><span style="mso-ansi-language: EN-US;">Steps</span></strong></p>
+            </td>
+            <td style="width: 163.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="218">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><strong><span style="mso-ansi-language: EN-US;">Action</span></strong></p>
+            </td>
+            <td style="width: 174.2pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="232">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><strong><span style="mso-ansi-language: EN-US;">Expected result</span></strong></p>
+            </td>
+            </tr>
+            <tr style="mso-yfti-irow: 8;">
+            <td style="width: 129.65pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="173">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">1</span></p>
+            </td>
+            <td style="width: 163.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="218">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">The wallet user starts the test case in ITB</span></p>
+            </td>
+            <td style="width: 174.2pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="232">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">ITB displays a popup with a URL pointing to the reference implementation Verifier</span></p>
+            </td>
+            </tr>
+            <tr style="mso-yfti-irow: 9;">
+            <td style="width: 129.65pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="173">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">2</span></p>
+            </td>
+            <td style="width: 163.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="218">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">The wallet user opens the URL in a new browser tab</span></p>
+            </td>
+            <td style="width: 174.2pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="232">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">The Verifier page opens</span></p>
+            </td>
+            </tr>
+            <tr style="mso-yfti-irow: 10;">
+            <td style="width: 129.65pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="173">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">3</span></p>
+            </td>
+            <td style="width: 163.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="218">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">The wallet user starts the DC API presentation on the Verifier page</span></p>
+            </td>
+            <td style="width: 174.2pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="232">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">The browser displays a QR code</span></p>
+            </td>
+            </tr>
+            <tr style="mso-yfti-irow: 11;">
+            <td style="width: 129.65pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="173">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">4</span></p>
+            </td>
+            <td style="width: 163.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="218">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">The wallet user scans the QR code with their wallet</span></p>
+            </td>
+            <td style="width: 174.2pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="232">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">The wallet requests permission to present the credential</span></p>
+            </td>
+            </tr>
+            <tr style="mso-yfti-irow: 12;">
+            <td style="width: 129.65pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="173">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">5</span></p>
+            </td>
+            <td style="width: 163.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="218">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">The wallet user gives permission to share the credential</span></p>
+            </td>
+            <td style="width: 174.2pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="232">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">The credential is shared with the remote reader</span></p>
+            </td>
+            </tr>
+            <tr style="mso-yfti-irow: 13; mso-yfti-lastrow: yes;">
+            <td style="width: 129.65pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="173">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">6</span></p>
+            </td>
+            <td style="width: 163.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="218">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">ITB records the test execution result</span></p>
+            </td>
+            <td style="width: 174.2pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0cm 5.4pt 0cm 5.4pt;" valign="top" width="232">
+            <p class="MsoNormal" style="margin-bottom: 8.0pt; line-height: 13.0pt;"><span style="mso-ansi-language: EN-US;">The test execution result appears on the ITB screen</span></p>
+            </td>
+            </tr>
+            </tbody>
+            </table>
         ]]></gitb:documentation>
     </metadata>
     <actors>
