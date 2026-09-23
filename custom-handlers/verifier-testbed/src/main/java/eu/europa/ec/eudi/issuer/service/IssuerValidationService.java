@@ -27,6 +27,10 @@ import com.gitb.vs.Void;
 import eu.europa.ec.eudi.gitb.Utils;
 import eu.europa.ec.eudi.issuer.dto.CredentialOfferLogsTO;
 import eu.europa.ec.eudi.verifier.utils.Json;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
@@ -51,18 +55,19 @@ public class IssuerValidationService implements ValidationService {
     log.info(
         "Received 'validate' command from test bed for session [{}]", parameters.getSessionId());
 
-    TAR report = utils.createReport(TestResultType.SUCCESS);
-
     String providedText = utils.getRequiredString(parameters.getInput(), "text");
     log.info("Retrieved issuer's logs from 'input' text.");
 
-    String expectedText = null;
+    boolean expectedSuccess = true;
     try {
-      expectedText = utils.getRequiredString(parameters.getInput(), "expected");
-      log.info("Retrieved 'expected' text.");
+      expectedSuccess =
+          Boolean.parseBoolean(utils.getRequiredString(parameters.getInput(), "expected"));
+      log.info("Retrieved 'expected' boolean.");
     } catch (Exception e) {
-      log.warn("None 'expected' text was received. Exception Message: {}", e.getMessage());
+      log.warn("None 'expected' boolean was received. Exception Message: {}", e.getMessage());
     }
+
+    Optional<String> expectedLog = utils.getOptionalString(parameters.getInput(), "expectedLog");
 
     CredentialOfferLogsTO providedLogs;
     try {
@@ -75,19 +80,24 @@ public class IssuerValidationService implements ValidationService {
       throw new RuntimeException(e);
     }
 
-    if (providedLogs.getSuccessful()) {
-      report.setResult(TestResultType.SUCCESS);
+    TAR report;
+    if (expectedLog.isPresent()) {
+      boolean logFound =
+          providedLogs.getLogs().stream()
+              .anyMatch(logEntry -> logEntry.contains(expectedLog.get()));
+      report = utils.createReport(logFound ? TestResultType.SUCCESS : TestResultType.FAILURE);
+    } else if (providedLogs.getSuccessful()) {
+      report = utils.createReport(TestResultType.SUCCESS);
+    } else if (!expectedSuccess) {
+      report = utils.createReport(TestResultType.SUCCESS);
     } else {
-      report.setResult(TestResultType.FAILURE);
+      report = utils.createReport(TestResultType.FAILURE);
     }
     log.info("Added test result type to Report.");
 
-    AnyContent logs;
     try {
-      ObjectNode logsJSON = fromListToJSONArray(providedLogs);
+      fromCredentialOfferToJson(providedLogs, report);
       log.info("Created JSON Array from list of issuer's logs.");
-      logs = toContent(logsJSON);
-      report.getContext().getItem().add(logs);
       log.info("Added issuer's logs to Report.");
     } catch (JsonProcessingException e) {
       log.error("Failed to add issuer's log to Report. Exception Message: {}", e.getMessage());
@@ -99,85 +109,62 @@ public class IssuerValidationService implements ValidationService {
     return result;
   }
 
-  private void debugMatch(String name, String regex, String logLine) {
-    Pattern p = Pattern.compile(regex);
-    Matcher m = p.matcher(logLine);
+  private static final Pattern LOG_LINE_PATTERN =
+      Pattern.compile(
+          "^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2},\\d{3})\\s*\\|\\s*([\\w.]+)\\s*\\|\\s*"
+              + "(INFO|WARN|ERROR|DEBUG|TRACE)\\s*\\|\\s*(?:,\\s*)?(.*)$",
+          Pattern.DOTALL);
 
-    if (!m.find()) {
-      log.error("{} not found in log.", name);
-      return;
-    }
-
-    log.info("{} found in: '{}'", name, m.group(0));
-    int groupCount = m.groupCount();
-    for (int i = 1; i <= groupCount; i++) {
-      try {
-        log.info("  group({}): '{}'", i, m.group(i));
-      } catch (Exception e) {
-        log.warn("  Failed to retrieve group({}). Exception: {}", i, e.getMessage());
-      }
-    }
-  }
-
-  private ObjectNode fromListToJSONArray(CredentialOfferLogsTO logs) {
+  private void fromCredentialOfferToJson(CredentialOfferLogsTO logs, TAR report)
+      throws JsonProcessingException {
     int info_counter_logs = 0;
     int warn_counter_logs = 0;
     int error_counter_logs = 0;
 
-    ObjectNode logsJsonObject = this.json.getReader().createObjectNode();
-
-    ArrayNode json = this.json.getReader().createArrayNode();
+    List<String> errors = new ArrayList<>();
+    ArrayNode logsJson = this.json.getReader().createArrayNode();
     for (String logLine : logs.getLogs()) {
-      debugMatch("Timestamp", "^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2},\\d{3}).*", logLine);
-      debugMatch("Logger name", "^\\s*\\S+\\s+(\\S+).*", logLine);
-      debugMatch("Level", ".*\\b(INFO|WARN|ERROR|DEBUG|TRACE)\\b.*", logLine);
-      log.info("Checked if log matches expected format: {}", logLine);
-
-      Pattern p =
-          Pattern.compile(
-              "^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2},\\d{3})\\s+([\\w\\.]+)\\s+(INFO|WARN|ERROR|DEBUG|TRACE)\\s+(?:,\\s*)?(.*)$");
-      Matcher m = p.matcher(logLine);
-
-      if (m.find()) {
-        ObjectNode logAsJSON = this.json.getReader().createObjectNode();
-        logAsJSON.put("timestamp", m.group(1));
-        logAsJSON.put("logger", m.group(2));
-        logAsJSON.put("level", m.group(3));
-        switch (m.group(3)) {
-          case "INFO" -> info_counter_logs++;
-          case "WARN" -> warn_counter_logs++;
-          case "ERROR" -> error_counter_logs++;
-        }
-        logAsJSON.put("message", m.group(4));
-        logAsJSON.put("full_log", logLine);
-        json.add(logAsJSON);
-        log.debug(logAsJSON.toString());
-      } else {
+      Matcher m = LOG_LINE_PATTERN.matcher(logLine);
+      if (!m.matches()) {
         log.warn(
             "Failed to retrieved required information (timestamp, logger name, level) from log {}",
             logLine);
+        continue;
       }
+      ObjectNode singleLogJson = this.json.getReader().createObjectNode();
+      singleLogJson.put("timestamp", m.group(1));
+      singleLogJson.put("logger", m.group(2));
+      singleLogJson.put("level", m.group(3));
+      singleLogJson.put("message", m.group(4));
+      singleLogJson.put("full_log", logLine);
+      switch (m.group(3)) {
+        case "INFO" -> info_counter_logs++;
+        case "WARN" -> warn_counter_logs++;
+        case "ERROR" -> {
+          error_counter_logs++;
+          errors.add(logLine);
+        }
+      }
+      logsJson.add(singleLogJson);
     }
-
-    logsJsonObject.set("logs", json);
+    toContentAndAddToReport(logsJson, "Issuer's Logs", report);
 
     ObjectNode counter = this.json.getReader().createObjectNode();
     counter.put("error_count", error_counter_logs);
     counter.put("warn_count", warn_counter_logs);
     counter.put("info_count", info_counter_logs);
     counter.put("total_count", logs.getCount());
+    toContentAndAddToReport(counter, "Issuer's Logs Stats", report);
 
-    logsJsonObject.set("log_stats", counter);
-
-    return logsJsonObject;
+    if (!errors.isEmpty()) {
+      toContentAndAddToReport((Serializable) errors, "Errors", report);
+    }
   }
 
-  private AnyContent toContent(ObjectNode logs) throws JsonProcessingException {
-    log.info("Adding logs to Result.");
-    log.debug("Logs: {}", logs.toString());
-
+  private void toContentAndAddToReport(Serializable logs, String name, TAR report)
+      throws JsonProcessingException {
     AnyContent result = new AnyContent();
-    result.setName("Issuer's Logs");
+    result.setName(name);
     result.setType("application/json");
     result.setEncoding("UTF-8");
     result
@@ -187,6 +174,7 @@ public class IssuerValidationService implements ValidationService {
                 "JSON Data",
                 json.getWriter().writeValueAsString(logs),
                 ValueEmbeddingEnumeration.STRING));
-    return result;
+
+    report.getContext().getItem().add(result);
   }
 }
