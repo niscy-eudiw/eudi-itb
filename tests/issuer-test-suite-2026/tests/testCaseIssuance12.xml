@@ -190,17 +190,9 @@
             <instruct desc="After issuing the PID in your wallet or if issuance fails, click on the Close button to continue"/>
         </interact>
 
-        <send id="credentialOfferRequest" desc="Send request to revoke PID issued (Mdoc)" handler="HttpMessagingV2" from="simulatedCredentialOffer" to="issuer" stopOnError="true">
-            <input name="uri">$revokeURL</input>
-            <input name="method">"POST"</input>
-            <input name="body">'{"session_id":"' || $sessionID || '"}'</input>
-            <input name="headers">$httpHeaders</input>
-        </send>
-
         <!--Making an HTTP Request to the Issuer to retrieve sessionID logs to check Credential Offer success-->
         <assign to="attempt" type="number">1</assign>
         <assign to="maxAttempts" type="number">$DOMAIN{maxAttempts}</assign>
-        <assign to="logsResponse">'none'</assign>
         <assign to="successful" type="string">"false"</assign>
 
         <log>"Retrieving logs at: " || $credentialIssuanceLogsURL || "?session_id=" || $sessionID</log>
@@ -208,14 +200,13 @@
             <cond><![CDATA[$attempt <= $maxAttempts and $successful != "true"]]></cond>
             <do>
                 <log>"Making HTTP request (attempt " || $attempt || ")..."</log>
-                <send id="logsRequest" desc="Retrieve logs to check Credential Offer success" handler="HttpMessagingV2" from="simulatedCredentialOffer" to="issuer">
+                <send id="successfulLogsRequest" desc="Retrieve logs to check Credential Offer success" handler="HttpMessagingV2" from="simulatedCredentialOffer" to="issuer">
                     <input name="uri">$credentialIssuanceLogsURL || "?session_id=" || $sessionID</input>
                     <input name="method">"GET"</input>
                     <input name="headers">$httpHeaders</input>
                 </send>
-                <assign to="logsResponse" type="string">$logsRequest{response}{body}</assign>
                 <process handler="JsonPathProcessor" operation="process" output="successfulResponse">
-                   <input name="content">$logsResponse</input>
+                   <input name="content">$successfulLogsRequest{response}{body}</input>
                    <input name="expression">"$.successful"</input>
                    <input name="outputType">"default"</input>
                 </process>
@@ -225,21 +216,40 @@
                 <process handler="DelayProcessor" operation="delay" input="$DOMAIN{delayBetweenCalls}"/>
             </do>
         </while>
-        
-        
         <verify handler="ExpressionValidator" desc="Verify http status code of the credential issuance logs request" stopOnError="true">
-            <input name="expression">$logsRequest{response}{status} = "200"</input>
+            <input name="expression">$successfulLogsRequest{response}{status} = "200"</input>
             <input name="successMessage">"The received http status code was 200."</input>
             <input name="failureMessage">"The received http status code was not 200."</input>
         </verify>
-
         <verify handler="ExpressionValidator" desc="Verify success of the credential issuance from logs response" stopOnError="true">
             <input name="expression">$successful = "true"</input>
             <input name="successMessage">"Credential Issuance was successful."</input>
             <input name="failureMessage">"Credential Issuance failed."</input>
         </verify>
 
-        <!--Process Logs response-->
+        <send id="revocationRequest" desc="Send request to revoke PID issued (Mdoc)" handler="HttpMessagingV2" from="simulatedCredentialOffer" to="issuer" stopOnError="true">
+            <input name="uri">$revokeURL</input>
+            <input name="method">"POST"</input>
+            <input name="body">'{"session_id":"' || $sessionID || '"}'</input>
+            <input name="headers">$httpHeaders</input>
+        </send>
+        <verify handler="ExpressionValidator" desc="Verify http status code of revocation request" stopOnError="true">
+            <input name="expression">$revocationRequest{response}{status} = "200"</input>
+            <input name="successMessage">"The received http status code was 200."</input>
+            <input name="failureMessage">"The received http status code was not 200."</input>
+        </verify>
+
+        <send id="logsRequest" desc="Retrieve logs of credential issuance and revocation" handler="HttpMessagingV2" from="simulatedCredentialOffer" to="issuer">
+            <input name="uri">$credentialIssuanceLogsURL || "?session_id=" || $sessionID</input>
+            <input name="method">"GET"</input>
+            <input name="headers">$httpHeaders</input>
+        </send>
+        <assign to="logsResponse" type="string">$logsRequest{response}{body}</assign>
+        <verify handler="ExpressionValidator" desc="Verify http status code of the credential issuance logs request" stopOnError="true">
+            <input name="expression">$logsRequest{response}{status} = "200"</input>
+            <input name="successMessage">"The received http status code was 200."</input>
+            <input name="failureMessage">"The received http status code was not 200."</input>
+        </verify>
         <process handler="JsonPathProcessor" operation="process" output="count" stopOnError="true">
            <input name="content">$logsResponse</input>
            <input name="expression">"$.count"</input>
@@ -256,7 +266,7 @@
             <input name="text">$logsResponse</input>
             <input name="expectedLog">"Credential revoked and verified as revoked"</input>
         </verify>
-         <interact id="review" desc="Confirm credential was revoked">
+        <interact id="review" desc="Confirm credential was revoked">
             <request desc="Does credential show up as revoked in the wallet?"
                     name="outcome" inputType="SELECT_SINGLE" options="Yes,No" required="true" default="No"/>
         </interact>
