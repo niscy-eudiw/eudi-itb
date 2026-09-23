@@ -17,6 +17,7 @@ package eu.europa.ec.eudi.gitb;
 
 import com.gitb.tr.ObjectFactory;
 import eu.europa.ec.eudi.issuer.service.IssuerValidationService;
+import eu.europa.ec.eudi.qes.service.QesValidationService;
 import eu.europa.ec.eudi.verifier.service.VerifierValidationService;
 import javax.xml.namespace.QName;
 import org.apache.cxf.Bus;
@@ -80,6 +81,15 @@ public class ServiceConfig {
     endpoint.setServiceName(new QName("http://www.gitb.com/vs/v1/", "ValidationService"));
     endpoint.setEndpointName(new QName("http://www.gitb.com/vs/v1/", "ValidationServicePort"));
     endpoint.publish("/log/validation/issuance");
+    return endpoint;
+  }
+
+  @Bean
+  public EndpointImpl rqesValidationService(Bus cxfBus, QesValidationService qesValidationService) {
+    EndpointImpl endpoint = new EndpointImpl(cxfBus, qesValidationService);
+    endpoint.setServiceName(new QName("http://www.gitb.com/vs/v1/", "ValidationService"));
+    endpoint.setEndpointName(new QName("http://www.gitb.com/vs/v1/", "ValidationServicePort"));
+    endpoint.publish("/log/validation/qes");
     return endpoint;
   }
 
